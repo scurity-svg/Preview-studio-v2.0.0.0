@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preview Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Roboto:wght@300;400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body class="layout-standard iconcircle icon-md corner-line shape-soft gap-normal header-left icon-shake wp-none anim-smooth">
+
+<div id="particles"></div>
+<div id="cur"></div>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header corner-box">
+    <span class="cnr"></span>
+    <div class="profile-wrap">
+      <div class="icon-btn" id="avatar" onclick="toggleDD(event)">G</div>
+      <div class="dropdown" id="dd">
+        <div class="dd-item" onclick="openSettings()"><span class="ic">⚙</span> Pengaturan Lengkap</div>
+        <div class="dd-item" onclick="toggleDark()"><span class="ic">🌙</span> Mode Gelap</div>
+        <div class="dd-item" onclick="togglePresent()"><span class="ic">🎬</span> Mode Presentasi</div>
+        <div class="dd-item" onclick="toggleFullscreen()"><span class="ic">⛶</span> Layar Penuh</div>
+        <div class="dd-item" onclick="randomizeAll()"><span class="ic">🎲</span> Acak Semua</div>
+        <div class="dd-item" onclick="resetAll()"><span class="ic">↺</span> Reset Default</div>
+      </div>
+    </div>
+    <div class="uname" id="uname">Tuan Gigs</div>
+    <div class="spacer"></div>
+    <div class="clock" id="clock" style="display:none">
+      <div class="t" id="clockT">00:00</div>
+      <div id="clockD">-</div>
+    </div>
+    <button class="hbtn" onclick="toggleDark()" title="Mode gelap">🌙</button>
+    <button class="hbtn" onclick="openSettings()" title="Pengaturan">⚙</button>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- KARTU 1: INPUT -->
+    <div class="card corner-box">
+      <span class="cnr"></span>
+      <textarea class="input-area" id="input" placeholder="Tempel kode di sini (HTML, CSS, JS, JSON, MD, apa saja)...
+Atau upload file / ZIP / gambar.
+Semua otomatis terdeteksi — tinggal klik JALANKAN."></textarea>
+
+      <div class="file-row">
+        <label class="ibtn"><span class="ic">📄</span> FILE<input type="file" id="fileIn" multiple></label>
+        <label class="ibtn"><span class="ic">🗜</span> ZIP<input type="file" id="zipIn" accept=".zip"></label>
+        <label class="ibtn"><span class="ic">🖼</span> GAMBAR<input type="file" id="imgIn" accept="image/*"></label>
+      </div>
+
+      <div class="prog" id="prog">
+        <div class="prog-info"><span id="progLbl">Memproses...</span><span id="progPct">0%</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+      </div>
+
+      <div class="flist" id="flist"></div>
+    </div>
+
+    <!-- KARTU 2: RUN -->
+    <div class="card corner-box">
+      <span class="cnr"></span>
+      <div class="run-row">
+        <button class="run-btn" id="runBtn" onclick="run()"><span id="runLabel">▶ JALANKAN</span></button>
+        <button class="clr-btn" onclick="clearAll()">✕</button>
+      </div>
+    </div>
+
+    <!-- KARTU 3: PREVIEW -->
+    <div class="card corner-box">
+      <span class="cnr"></span>
+      <div id="previewBox">
+        <div class="pempty">
+          <div class="big">⧉</div>
+          <div>Tempel kode atau upload file/ZIP<br>lalu klik JALANKAN</div>
+        </div>
+      </div>
+      <div class="console" id="console"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL PENGATURAN -->
+<div class="mback" id="mback" onclick="closeSettings(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhead">
+      <h2>⚙ Pengaturan</h2>
+      <button class="mclose" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="mtabs">
+      <button class="mtab active" data-tab="bentuk" onclick="pickTab('bentuk')">🏗️ Bentuk</button>
+      <button class="mtab" data-tab="ikon" onclick="pickTab('ikon')">🎯 Ikon</button>
+      <button class="mtab" data-tab="tema" onclick="pickTab('tema')">🎨 Tema</button>
+      <button class="mtab" data-tab="efek" onclick="pickTab('efek')">✨ Efek</button>
+      <button class="mtab" data-tab="profil" onclick="pickTab('profil')">👤 Profil</button>
+    </div>
+
+    <div class="mbody">
+
+      <!-- TAB BENTUK -->
+      <div class="mpanel active" data-panel="bentuk">
+        <div class="mgroup">
+          <div class="mlabel">Tata Letak Dashboard</div>
+          <div class="chips-2">
+            <div class="chip active" data-lt="layout-standard" onclick="pickOne('lt',this)"><span class="emoji">▤</span>Standar</div>
+            <div class="chip" data-lt="layout-grid" onclick="pickOne('lt',this)"><span class="emoji">▦</span>Grid 2×2</div>
+            <div class="chip" data-lt="layout-sidebar" onclick="pickOne('lt',this)"><span class="emoji">▥</span>Sidebar</div>
+            <div class="chip" data-lt="layout-float" onclick="pickOne('lt',this)"><span class="emoji">▧</span>Melayang</div>
+            <div class="chip" data-lt="layout-split" onclick="pickOne('lt',this)"><span class="emoji">◫</span>Kiri-Kanan</div>
+            <div class="chip" data-lt="layout-magazine" onclick="pickOne('lt',this)"><span class="emoji">▩</span>Majalah</div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="mlabel">Bentuk Kartu</div>
+          <div class="chips-4">
+            <div class="chip" data-sh="shape-square" onclick="pickOne('sh',this)"><span class="emoji">▪</span>Tajam</div>
+            <div class="chip active" data-sh="shape-soft" onclick="pickOne('sh',this)"><span class="emoji">▢</span>Lembut</div>
+            <div class="chip" data-sh="shape-round" onclick="pickOne('sh',this)"><span class="emoji">⬭</span>Bulat</div>
+            <div class="chip" data-sh="shape-pill" onclick="pickOne('sh',this)"><span class="emoji">⬮</span>Kapsul</div>
+            <div class="chip" data-sh="shape-tilt" onclick="pickOne('sh',this)"><span class="emoji">◪</span>Miring</div>
+            <div class="chip" data-sh="shape-diamond" onclick="pickOne('sh',this)"><span class="emoji">◆</span>Berlian</div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="mlabel">Jarak Modul</div>
+          <div class="chips">
+            <div class="chip" data-gp="gap-tight" onclick="pickOne('gp',this)"><span class="emoji">🤏</span>Rapat</div>
+            <div class="chip active" data-gp="gap-normal" onclick="pickOne('gp',this)"><span class="emoji">↔</span>Normal</div>
+            <div class="chip" data-gp="gap-loose" onclick="pickOne('gp',this)"><span class="emoji">🖐</span>Longgar</div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="mlabel">Efek Sudut</div>
+          <div class="chips-4">
+            <div class="chip active" data-cn="corner-line" onclick="pickOne('cn',this)"><span class="emoji">⌐</span>Garis 2D</div>
+            <div class="chip" data-cn="corner-dot" onclick="pickOne('cn',this)"><span class="emoji">●</span>Titik</div>
+            <div class="chip" data-cn="corner-x" onclick="pickOne('cn',this)"><span class="emoji">✕</span>Silang</div>
+            <div class="chip" data-cn="corner-none" onclick="pickOne('cn',this)"><span class="emoji">⬜</span>Polos</div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="mlabel">Posisi Header</div>
+          <div class="chips">
+            <div class="chip active" data-hp="header-left" onclick="pickOne('hp',this)"><span class="emoji">⬅</span>Kiri</div>
+            <div class="chip" data-hp="header-center" onclick="pickOne('hp',this)"><span class="emoji">⬌</span>Tengah</div>
+            <div class="chip" data-hp="header-right" onclick="pickOne('hp',this)"><span class="emoji">➡</span>Kanan</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB IKON -->
+      <div class="mpanel" data-panel="ikon">
+        <div class="mgroup">
+          <div class="mlabel">Ukuran Ikon</div>
+          <div class="chips-4">
+            <div class="chip" data-iz="icon-sm" onclick="pickOne('iz',this)"><span class="emoji">·</span>Kecil</div>
+            <div class="chip active" data-iz="icon-md" onclick="pickOne('iz',this)"><span class="emoji">●</span>Normal</div>
+            <div class="chip" data-iz="icon-lg" onclick="pickOne('iz',this)"><span class="emoji">⬤</span>Besar</div>
+            <div class="chip" data-iz="icon-xl" onclick="pickOne('iz',this)"><span class="emoji">⬤</span>Jumbo</div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="mlabel">Bentuk Ikon</div>
+          <div class="chips-4">
+            <div class="chip active" data-ish="iconcircle" onclick="pickOne('ish',this)"><span class="emoji">●</span>Bulat</div>
+            <div class="chip" data-ish="iconsquare" onclick="pickOne('ish',this)"><span class="emoji">■</span>Kotak</div>
+            <div class="chip" data-ish="iconpill" onclick="pickOne('ish',this)"><span class="emoji">⬮</span>Kapsul</div>
+            <div class="chip" data-ish="icondiamond" onclick="pickOne('ish',this)"><span class="emoji">◆</span>Berlian</div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="mlabel">Animasi Ikon Saat Disentuh</div>
+          <div class="chips-4">
+            <div class="chip active" data-ia="icon-shake" onclick="pickOne('ia',this)"><span class="emoji">↔</span>Goyang</div>
+            <div class="chip" data-ia="icon-rotate" onclick="pickOne('ia',this)"><span class="emoji">↻</span>Putar</div>
+            <div class="chip" data-ia="icon-bounce" onclick="pickOne('ia',this)"><span class="emoji">↑</span>Pantul</div>
+            <div class="chip" data-ia="icon-none" onclick="pickOne('ia',this)"><span class="emoji">⬜</span>Mati</div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="switch-row">
+            <span class="lbl">Efek Ripple (Gelombang Klik)</span>
+            <div class="switch on" id="swRipple" onclick="toggleSwitch(this,'ripple')"></div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="mlabel">Animasi Tombol JALANKAN</div>
+          <div class="chips">
+            <div class="chip active" data-ba="btn-normal" onclick="pickOne('ba',this)"><span class="emoji">▬</span>Normal</div>
+            <div class="chip" data-ba="btn-shake" onclick="pickOne('ba',this)"><span class="emoji">↔</span>Goyang</div>
+            <div class="chip" data-ba="btn-glow" onclick="pickOne('ba',this)"><span class="emoji">✨</span>Glow</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB TEMA -->
+      <div class="mpanel" data-panel="tema">
+        <div class="mgroup">
+          <div class="mlabel">Tema Siap Pakai</div>
+          <div class="theme-presets" id="themePresets"></div>
+        </div>
+        <div class="mgroup">
+          <div class="mlabel">Warna Aksen</div>
+          <div class="crow">
+            <input type="color" id="inAc" value="#ff8c1a">
+            <input class="minput" id="inAcH" value="#ff8c1a">
+          </div>
+          <div class="presets" id="acPresets"></div>
+        </div>
+        <div class="mgroup">
+          <div class="mlabel">Warna Background</div>
+          <div class="crow">
+            <input type="color" id="inBg" value="#f7f7f9">
+            <input class="minput" id="inBgH" value="#f7f7f9">
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="switch-row">
+            <span class="lbl">Mode Gelap</span>
+            <div class="switch" id="swDark" onclick="toggleDark()"></div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="switch-row">
+            <span class="lbl">Glow Neon</span>
+            <div class="switch" id="swGlow" onclick="toggleSwitch(this,'glow')"></div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="switch-row">
+            <span class="lbl">Blur Kaca</span>
+            <div class="switch" id="swBlur" onclick="toggleSwitch(this,'blur')"></div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="switch-row">
+            <span class="lbl">Partikel Latar</span>
+            <div class="switch" id="swParticle" onclick="toggleSwitch(this,'particle')"></div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="switch-row">
+            <span class="lbl">Kursor Custom</span>
+            <div class="switch" id="swCursor" onclick="toggleSwitch(this,'cursor')"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB EFEK -->
+      <div class="mpanel" data-panel="efek">
+        <div class="mgroup">
+          <div class="mlabel">Kecepatan Animasi</div>
+          <div class="chips-2">
+            <div class="chip" data-an="anim-fast" onclick="pickOne('an',this)"><span class="emoji">⚡</span>Cepat</div>
+            <div class="chip active" data-an="anim-smooth" onclick="pickOne('an',this)"><span class="emoji">✨</span>Halus</div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="mlabel">Pola Latar</div>
+          <div class="chips-4">
+            <div class="chip active" data-wp="wp-none" onclick="pickOne('wp',this)"><span class="emoji">⬜</span>Polos</div>
+            <div class="chip" data-wp="wp-dots" onclick="pickOne('wp',this)"><span class="emoji">⋯</span>Titik</div>
+            <div class="chip" data-wp="wp-grid" onclick="pickOne('wp',this)"><span class="emoji">▦</span>Kisi</div>
+            <div class="chip" data-wp="wp-mesh" onclick="pickOne('wp',this)"><span class="emoji">🎨</span>Mesh</div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="switch-row">
+            <span class="lbl">Suara Klik Tombol</span>
+            <div class="switch" id="swSound" onclick="toggleSwitch(this,'sound')"></div>
+          </div>
+        </div>
+        <div class="mgroup">
+          <div class="switch-row">
+            <span class="lbl">Getar HP</span>
+            <div class="switch" id="swVibrate" onclick="toggleSwitch(this,'vibrate')"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB PROFIL -->
+      <div class="mpanel" data-panel="profil">
+        <div class="mgroup">
+          <div class="mlabel">Nama Pengguna</div>
+          <input class="minput" id="inName" placeholder="Nama Tuan...">
+        </div>
+        <div class="mgroup">
+          <div class="mlabel">Inisial Avatar</div>
+          <input class="minput" id="inAv" maxlength="2" placeholder="G">
+        </div>
+        <div class="mgroup">
+          <div class="mlabel">Ikon Avatar (Emoji)</div>
+          <input class="minput" id="inEmoji" placeholder="🚀 🎮 🐱 🔥" maxlength="4">
+        </div>
+        <div class="mgroup">
+          <div class="mlabel">Foto Profil dari URL</div>
+          <input class="minput" id="inAvUrl" placeholder="https://...">
+        </div>
+        <div class="mgroup">
+          <div class="mlabel">Teks Tombol JALANKAN</div>
+          <input class="minput" id="inRunTxt" placeholder="▶ JALANKAN">
+        </div>
+        <div class="mgroup">
+          <div class="switch-row">
+            <span class="lbl">Tampilkan Jam & Tanggal</span>
+            <div class="switch" id="swClock" onclick="toggleSwitch(this,'clock')"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="mac">
+      <button class="b-cancel" onclick="closeSettings()">Batal</button>
+      <button class="b-save" onclick="saveSettings()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
